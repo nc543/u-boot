@@ -1,4 +1,4 @@
-# $Header$
+# $Header: /home/cvs/s3c-u-boot-1.1.6/board/cray/L1/bootscript.hush,v 1.1.1.1 2006/12/06 00:22:13 scsuh Exp $
 # hush bootscript for PPCBOOT on L1
 # note: all #s are in hex, do _NOT_ prefix it with 0x
 

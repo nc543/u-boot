@@ -7,7 +7,7 @@
  * For licensing information, see the file 'LICENCE' in the
  * jffs2 directory.
  *
- * $Id: compr_lzo.c,v 1.3 2004/06/23 16:34:39 havasi Exp $
+ * $Id: compr_lzo.c,v 1.1.1.1 2006/12/06 00:22:14 scsuh Exp $
  *
  */
 

@@ -2,13 +2,16 @@
  *
  * Unless otherwise specified, Copyright (C) 2004-2005 Barco Control Rooms
  *
- * $Source: /home/services/cvs/firmware/ppc/u-boot-1.1.2/board/barco/barco.c,v $
- * $Revision: 1.4 $
- * $Author: mleeman $
- * $Date: 2005/03/02 16:40:20 $
+ * $Source: /home/cvs/s3c-u-boot-1.1.6/board/barco/barco.c,v $
+ * $Revision: 1.1.1.1 $
+ * $Author: scsuh $
+ * $Date: 2006/12/06 00:22:11 $
  *
  * Last ChangeLog Entry
  * $Log: barco.c,v $
+ * Revision 1.1.1.1  2006/12/06 00:22:11  scsuh
+ * new start of u-boot 1.1.6
+ *
  * Revision 1.4  2005/03/02 16:40:20  mleeman
  * remove empty labels (3.4 complains)
  *

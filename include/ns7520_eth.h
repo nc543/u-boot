@@ -3,7 +3,7 @@
  *  Copyright 2003 by FS Forth-Systeme GmbH.
  *  All rights reserved.
  *
- *  $Id$
+ *  $Id: ns7520_eth.h,v 1.1.1.1 2006/12/06 00:22:13 scsuh Exp $
  *  @Author: Markus Pietrek
  *  @Descr: Defines the NS7520 ethernet registers.
  *          Stick with the old ETH prefix names instead going to the

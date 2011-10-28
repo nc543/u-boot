@@ -34,6 +34,10 @@
 #include <malloc.h>		/* for free() prototype */
 #endif
 
+#define GPKDAT		(0x560000e4)
+#define GPGDAT		(0x56000064)
+#include <asm/io.h>
+
 #ifdef CFG_HUSH_PARSER
 #include <hush.h>
 #endif
@@ -294,6 +298,8 @@ static __inline__ int abortboot(int bootdelay)
 
 void main_loop (void)
 {
+	ulong gpdat;
+
 #ifndef CFG_HUSH_PARSER
 	static char lastcommand[CFG_CBSIZE] = { 0, };
 	int len;
@@ -400,10 +406,34 @@ void main_loop (void)
 	}
 	else
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
+
+	gpdat = readl(GPGDAT) & 0xc0;
+	if(gpdat != 0)
 		s = getenv ("bootcmd");
+	else
+	{
+		gpdat = readl(GPGDAT) & 0xc0;
+		if(gpdat != 0)
+		{
+			s = getenv ("bootcmd");
+		}
+		else
+		{
+			printf("\n*** EMERGENCY BOOTING ***\n\n");
+			s = getenv ("ebootcmd");
+		}
+	}
 
 	debug ("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
 
+	if ((readl(GPKDAT) & 0x8000) == 0)
+		printf("\nLAN board detected.\n");
+	else
+	{
+		printf("\nLAN board not found\n");
+		bootdelay = 1;
+	}
+	
 	if (bootdelay >= 0 && s && !abortboot (bootdelay)) {
 # ifdef CONFIG_AUTOBOOT_KEYED
 		int prev = disable_ctrlc(1);	/* disable Control C checking */

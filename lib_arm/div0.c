@@ -28,3 +28,13 @@ void __div0 (void)
 
 	hang();
 }
+
+/* add functions to be compiled by CodeSourcery Toolchain */
+void __aeabi_ldiv0 (void)
+{
+	extern void hang (void);
+
+	hang();
+}
+void raise(void) {
+}

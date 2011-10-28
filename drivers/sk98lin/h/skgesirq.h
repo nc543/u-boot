@@ -2,8 +2,8 @@
  *
  * Name:	skgesirq.h
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
- * Version:	$Revision: 1.26 $
- * Date:	$Date: 2002/10/14 09:52:36 $
+ * Version:	$Revision: 1.1.1.1 $
+ * Date:	$Date: 2006/12/06 00:22:14 $
  * Purpose:	SK specific Gigabit Ethernet special IRQ functions
  *
  ******************************************************************************/
@@ -25,6 +25,9 @@
  *
  * History:
  *	$Log: skgesirq.h,v $
+ *	Revision 1.1.1.1  2006/12/06 00:22:14  scsuh
+ *	new start of u-boot 1.1.6
+ *	
  *	Revision 1.26  2002/10/14 09:52:36  rschmidt
  *	Added SKERR_SIRQ_E023 and SKERR_SIRQ_E023 for GPHY (Yukon)
  *	Editorial changes

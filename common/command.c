@@ -29,6 +29,45 @@
 #include <command.h>
 
 int
+do_update (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	char *s;
+
+	s = getenv ("memfill");
+	run_command (s, 0);
+
+	printf("\n");
+	printf("*********************\n");
+	printf("*  Updating Kernel  *\n");
+	printf("*********************\n\n");
+	s = getenv ("updk");
+	run_command (s, 0);
+
+	printf("\n");
+	printf("************************\n");
+	printf("*  Updating Root File  *\n");
+	printf("************************\n\n");
+	s = getenv ("updr");
+	run_command (s, 0);
+
+	printf("\n");
+	printf("**********************************\n");
+	printf("*  Updating Emergency User File  *\n");
+	printf("**********************************\n\n");
+	s = getenv ("updu");
+	run_command (s, 0);
+
+	do_reset();
+	return 0;
+}
+
+U_BOOT_CMD(
+	update,	1,		1,	do_update,
+ 	"update  - update all images in boot mode\n",
+	NULL
+);
+
+int
 do_version (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern char version_string[];

@@ -2,8 +2,8 @@
  *
  * Name:	skqueue.c
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
- * Version:	$Revision: 1.18 $
- * Date:	$Date: 2002/05/07 14:11:11 $
+ * Version:	$Revision: 1.1.1.1 $
+ * Date:	$Date: 2006/12/06 00:22:14 $
  * Purpose:	Management of an event queue.
  *
  ******************************************************************************/
@@ -27,6 +27,9 @@
  * History:
  *
  *	$Log: skqueue.c,v $
+ *	Revision 1.1.1.1  2006/12/06 00:22:14  scsuh
+ *	new start of u-boot 1.1.6
+ *	
  *	Revision 1.18  2002/05/07 14:11:11  rwahl
  *	Fixed Watcom Precompiler error.
  *
@@ -95,7 +98,7 @@
 	Event queue and dispatcher
 */
 static const char SysKonnectFileId[] =
-	"$Header: /usr56/projects/ge/schedule/skqueue.c,v 1.18 2002/05/07 14:11:11 rwahl Exp $" ;
+	"$Header: /home/cvs/s3c-u-boot-1.1.6/drivers/sk98lin/skqueue.c,v 1.1.1.1 2006/12/06 00:22:14 scsuh Exp $" ;
 
 #include "h/skdrv1st.h"		/* Driver Specific Definitions */
 #include "h/skqueue.h"		/* Queue Definitions */

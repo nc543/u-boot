@@ -29,6 +29,10 @@
 #include <pci.h>
 #include <asm/processor.h>
 
+#if defined(CONFIG_OF_FLAT_TREE)
+#include <ft_build.h>
+#endif
+
 #if defined(CONFIG_LITE5200B)
 #include "mt46v32m16.h"
 #else
@@ -308,17 +312,15 @@ void pci_init_board(void)
 
 #if defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET)
 
-#define GPIO_PSC1_4	0x01000000UL
-
 void init_ide_reset (void)
 {
 	debug ("init_ide_reset\n");
 
-    	/* Configure PSC1_4 as GPIO output for ATA reset */
+	/* Configure PSC1_4 as GPIO output for ATA reset */
 	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC1_4;
 	*(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC1_4;
 	/* Deassert reset */
-	*(vu_long *) MPC5XXX_WU_GPIO_DATA   |= GPIO_PSC1_4;
+	*(vu_long *) MPC5XXX_WU_GPIO_DATA_O   |= GPIO_PSC1_4;
 }
 
 void ide_set_reset (int idereset)
@@ -326,11 +328,19 @@ void ide_set_reset (int idereset)
 	debug ("ide_reset(%d)\n", idereset);
 
 	if (idereset) {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA &= ~GPIO_PSC1_4;
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O &= ~GPIO_PSC1_4;
 		/* Make a delay. MPC5200 spec says 25 usec min */
 		udelay(500000);
 	} else {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA |=  GPIO_PSC1_4;
+		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |=  GPIO_PSC1_4;
 	}
 }
 #endif /* defined (CFG_CMD_IDE) && defined (CONFIG_IDE_RESET) */
+
+#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+}
+#endif

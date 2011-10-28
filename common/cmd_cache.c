@@ -84,6 +84,35 @@ int do_dcache ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 }
 
+#ifdef CONFIG_S3C64XX
+int do_branch ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	switch (argc) {
+	case 2:			/* on / off	*/
+		switch (on_off(argv[1])) {
+#if 0	/* prevented by varargs handling; FALLTROUGH is harmless, too */
+		default: printf ("Usage:\n%s\n", cmdtp->usage);
+			return;
+#endif
+		case 0:	branch_disable();
+			break;
+		case 1:	branch_enable ();
+			break;
+		}
+		/* FALL TROUGH */
+	case 1:			/* get status */
+		printf ("branch prediction is %s\n",
+			branch_status() ? "ON" : "OFF");
+		return 0;
+	default:
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+	return 0;
+
+}
+#endif
+
 static int on_off (const char *s)
 {
 	if (strcmp(s, "on") == 0) {
@@ -108,5 +137,14 @@ U_BOOT_CMD(
 	"[on, off]\n"
 	"    - enable or disable data (writethrough) cache\n"
 );
+
+#ifdef CONFIG_S3C64XX
+U_BOOT_CMD(
+	branch,   2,   1,     do_branch,
+	"branch  - enable or disable branch prediction\n",
+	"[on, off]\n"
+	"    - enable or disable branch prediction in ARM11\n"
+);
+#endif
 
 #endif	/* CFG_CMD_CACHE */

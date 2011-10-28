@@ -2,8 +2,8 @@
  *
  * Name:	skvpd.h
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
- * Version:	$Revision: 1.15 $
- * Date:	$Date: 2003/01/13 10:39:38 $
+ * Version:	$Revision: 1.1.1.1 $
+ * Date:	$Date: 2006/12/06 00:22:14 $
  * Purpose:	Defines and Macros for VPD handling
  *
  ******************************************************************************/
@@ -26,6 +26,9 @@
  * History:
  *
  *	$Log: skvpd.h,v $
+ *	Revision 1.1.1.1  2006/12/06 00:22:14  scsuh
+ *	new start of u-boot 1.1.6
+ *	
  *	Revision 1.15  2003/01/13 10:39:38  rschmidt
  *	Replaced define for PCI device Id for YUKON with GENESIS
  *	Editorial changes

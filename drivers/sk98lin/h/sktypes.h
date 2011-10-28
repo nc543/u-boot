@@ -2,8 +2,8 @@
  *
  * Name:	sktypes.h
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
- * Version:	$Revision: 1.3 $
- * Date:	$Date: 2003/02/25 14:16:40 $
+ * Version:	$Revision: 1.1.1.1 $
+ * Date:	$Date: 2006/12/06 00:22:14 $
  * Purpose:	Define data types for Linux
  *
  ******************************************************************************/
@@ -26,6 +26,9 @@
  * History:
  *
  *	$Log: sktypes.h,v $
+ *	Revision 1.1.1.1  2006/12/06 00:22:14  scsuh
+ *	new start of u-boot 1.1.6
+ *	
  *	Revision 1.3  2003/02/25 14:16:40  mlindner
  *	Fix: Copyright statement
  *

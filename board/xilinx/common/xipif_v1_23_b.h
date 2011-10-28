@@ -1,4 +1,4 @@
-/* $Id: xipif_v1_23_b.h,v 1.1 2002/03/18 23:24:52 linnj Exp $ */
+/* $Id: xipif_v1_23_b.h,v 1.1.1.1 2006/12/06 00:22:11 scsuh Exp $ */
 /******************************************************************************
 *
 *	XILINX IS PROVIDING THIS DESIGN, CODE, OR INFORMATION "AS IS"

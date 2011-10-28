@@ -101,6 +101,10 @@ get_cpu_type(void)
 		type = CPU_7457;
 		break;
 
+	case 0x8004:
+		type = CPU_7448;
+		break;
+
 	default:
 		break;
 	}
@@ -150,6 +154,10 @@ int checkcpu (void)
 
 	case CPU_7410:
 		str = "MPC7410";
+		break;
+
+	case CPU_7448:
+		str = "MPC7448";
 		break;
 
 	case CPU_7450:
@@ -221,7 +229,7 @@ soft_restart(unsigned long addr)
 void
 do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-    	ulong addr;
+	ulong addr;
 	/* flush and disable I/D cache */
 	__asm__ __volatile__ ("mfspr	3, 1008"	::: "r3");
 	__asm__ __volatile__ ("ori	5, 5, 0xcc00"	::: "r5");

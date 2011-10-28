@@ -72,6 +72,30 @@ uchar default_environment[] = {
 #ifdef	CONFIG_BOOTCOMMAND
 	"bootcmd="	CONFIG_BOOTCOMMAND		"\0"
 #endif
+#ifdef	CONFIG_EBOOTCOMMAND
+	"ebootcmd="	CONFIG_EBOOTCOMMAND		"\0"
+#endif
+#ifdef CONFIG_UPDKERNEL
+	"updk="	CONFIG_UPDKERNEL	"\0"
+#endif
+#ifdef CONFIG_UPDKERNEL1
+	"updk1="	CONFIG_UPDKERNEL1	"\0"
+#endif
+#ifdef CONFIG_UPDKERNEL2
+	"updk2="	CONFIG_UPDKERNEL2	"\0"
+#endif
+#ifdef CONFIG_UPDROOT
+	"updr="	CONFIG_UPDROOT	"\0"
+#endif
+#ifdef CONFIG_UPDUSER
+	"updu="	CONFIG_UPDUSER	"\0"
+#endif
+#ifdef CONFIG_UPDBOOT
+	"updb="	CONFIG_UPDBOOT	"\0"
+#endif
+#ifdef CONFIG_MEMFILL
+	"memfill="	CONFIG_MEMFILL	"\0"
+#endif
 #ifdef	CONFIG_RAMBOOTCOMMAND
 	"ramboot="	CONFIG_RAMBOOTCOMMAND		"\0"
 #endif
@@ -141,7 +165,7 @@ uchar default_environment[] = {
 	"\0"
 };
 
-#if defined(CFG_ENV_IS_IN_NAND)		/* Environment is in Nand Flash */
+#if defined(CFG_ENV_IS_IN_NAND) || defined(CFG_ENV_IS_IN_MOVINAND) || defined(CFG_ENV_IS_IN_ONENAND) /* Environment is in Nand Flash or MoviNAND or OneNAND */
 int default_environment_size = sizeof(default_environment);
 #endif
 

@@ -2,13 +2,16 @@
  *
  * Unless otherwise specified, Copyright (C) 2004-2005 Barco Control Rooms
  *
- * $Source: /home/services/cvs/firmware/ppc/u-boot-1.1.2/board/barco/flash.c,v $
- * $Revision: 1.3 $
- * $Author: mleeman $
- * $Date: 2005/02/21 12:48:58 $
+ * $Source: /home/cvs/s3c-u-boot-1.1.6/board/barco/flash.c,v $
+ * $Revision: 1.1.1.1 $
+ * $Author: scsuh $
+ * $Date: 2006/12/06 00:22:11 $
  *
  * Last ChangeLog Entry
  * $Log: flash.c,v $
+ * Revision 1.1.1.1  2006/12/06 00:22:11  scsuh
+ * new start of u-boot 1.1.6
+ *
  * Revision 1.3  2005/02/21 12:48:58  mleeman
  * update of copyright years (feedback wd)
  *

@@ -3,7 +3,7 @@
  * (c) 1999 Machine Vision Holdings, Inc.
  * (c) 1999, 2000 David Woodhouse <dwmw2@infradead.org>
  *
- * $Id: doc2000.c,v 1.46 2001/10/02 15:05:13 dwmw2 Exp $
+ * $Id: cmd_doc.c,v 1.1.1.1 2006/12/06 00:22:14 scsuh Exp $
  */
 
 #include <common.h>

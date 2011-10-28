@@ -2,8 +2,8 @@
  *
  * Name:	skhwt.h
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
- * Version:	$Revision: 1.5 $
- * Date:	$Date: 1999/11/22 13:54:24 $
+ * Version:	$Revision: 1.1.1.1 $
+ * Date:	$Date: 2006/12/06 00:22:14 $
  * Purpose:	Defines for the hardware timer functions
  *
  ******************************************************************************/
@@ -27,6 +27,9 @@
  * History:
  *
  *	$Log: skgehwt.h,v $
+ *	Revision 1.1.1.1  2006/12/06 00:22:14  scsuh
+ *	new start of u-boot 1.1.6
+ *	
  *	Revision 1.5  1999/11/22 13:54:24  cgoos
  *	Changed license header to GPL.
  *

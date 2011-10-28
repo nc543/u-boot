@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------
  * Filename:      mini_inflate.h
- * Version:       $Id: mini_inflate.h,v 1.2 2002/01/17 00:53:20 nyet Exp $
+ * Version:       $Id: mini_inflate.h,v 1.1.1.1 2006/12/06 00:22:13 scsuh Exp $
  * Copyright:     Copyright (C) 2001, Russ Dill
  * Author:        Russ Dill <Russ.Dill@asu.edu>
  * Description:   Mini deflate implementation

@@ -3,7 +3,7 @@
  * Copyright (C) 2004 by FS Forth-Systeme GmbH.
  * All rights reserved.
  *
- * $Id: ns9750_bbus.h,v 1.1 2004/02/16 10:37:20 mpietrek Exp $
+ * $Id: ns9750_bbus.h,v 1.1.1.1 2006/12/06 00:22:13 scsuh Exp $
  * @Author: Markus Pietrek
  * @Descr: Definitions for BBus usage
  * @References: [1] NS9750 Hardware Reference Manual/December 2003 Chap. 10

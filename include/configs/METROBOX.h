@@ -25,10 +25,13 @@
  ***********************************************************************/
 
 /*
- * $Id: METROBOX.h,v 1.21 2005/06/03 15:05:25 tsawyer Exp $
+ * $Id: METROBOX.h,v 1.1.1.1 2006/12/06 00:22:13 scsuh Exp $
  *
  *
  * $Log: METROBOX.h,v $
+ * Revision 1.1.1.1  2006/12/06 00:22:13  scsuh
+ * new start of u-boot 1.1.6
+ *
  * Revision 1.21  2005/06/03 15:05:25  tsawyer
  * MB rev 2.0.3 KA rev 0.0.7.  Add CONFIG_VERSION_VARIABLE, Add fakeled to MB
  *

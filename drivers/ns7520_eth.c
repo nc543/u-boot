@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2005 by Videon Central, Inc.
  *
- * $Id$
+ * $Id: ns7520_eth.c,v 1.1.1.1 2006/12/06 00:22:14 scsuh Exp $
  * @Author: Arthur Shipkowski
  * @Descr: Ethernet driver for the NS7520. Uses polled Ethernet, like
  *     the older netarmeth driver.  Note that attempting to filter

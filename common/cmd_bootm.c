@@ -155,7 +155,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong	iflag;
 	ulong	addr;
 	ulong	data, len, checksum;
-	ulong  *len_ptr;
+	ulong  *len_ptr = NULL; /* not to make warning. by scsuh */
 	uint	unc_len = CFG_BOOTM_LEN;
 	int	i, verify;
 	char	*name, *s;
@@ -170,6 +170,17 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	} else {
 		addr = simple_strtoul(argv[1], NULL, 16);
 	}
+
+#ifdef CONFIG_ZIMAGE_BOOT
+#define LINUX_ZIMAGE_MAGIC	0x016f2818
+	if (*(ulong *)(addr + 9*4) == LINUX_ZIMAGE_MAGIC) {
+		printf("Boot with zImage\n");
+		addr = virt_to_phys(addr);
+		hdr->ih_os = IH_OS_LINUX;
+		hdr->ih_ep = ntohl(addr);
+		goto after_header_check;
+	}
+#endif
 
 	SHOW_BOOT_PROGRESS (1);
 	printf ("## Booting image at %08lx ...\n", addr);
@@ -194,6 +205,14 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		} else
 #endif	/* __I386__ */
 	    {
+#ifdef CONFIG_IMAGE_BOOT
+		printf("Boot with Image\n");
+		addr = virt_to_phys(addr);
+		hdr->ih_os = IH_OS_LINUX;
+		hdr->ih_ep = ntohl(addr);
+		hdr->ih_comp = IH_COMP_NONE;
+		goto after_header_check;
+#endif
 		puts ("Bad Magic Number\n");
 		SHOW_BOOT_PROGRESS (-1);
 		return 1;
@@ -409,6 +428,9 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	SHOW_BOOT_PROGRESS (8);
 
+#if defined(CONFIG_ZIMAGE_BOOT) || defined(CONFIG_IMAGE_BOOT)
+after_header_check:
+#endif
 	switch (hdr->ih_os) {
 	default:			/* handled by (original) Linux case */
 	case IH_OS_LINUX:
@@ -833,10 +855,6 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			printf ("ERROR: flat device tree size does not agree with image\n");
 			return;
 		}
-
-	} else if (getenv("disable_of") == NULL) {
-		printf ("ERROR: bootm needs flat device tree as third argument\n");
-		return;
 	}
 #endif
 	if (!data) {
@@ -913,23 +931,11 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 
 	SHOW_BOOT_PROGRESS (15);
 
-#ifndef CONFIG_OF_FLAT_TREE
-
 #if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();
 #endif
 
-	/*
-	 * Linux Kernel Parameters:
-	 *   r3: ptr to board info data
-	 *   r4: initrd_start or 0 if no initrd
-	 *   r5: initrd_end - unused if r4 is 0
-	 *   r6: Start of command line string
-	 *   r7: End   of command line string
-	 */
-	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
-
-#else	/* CONFIG_OF_FLAT_TREE */
+#ifdef CONFIG_OF_FLAT_TREE
 	/* move of_flat_tree if needed */
 	if (of_data) {
 		ulong of_start, of_len;
@@ -948,30 +954,36 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 			of_start, of_start + of_len - 1);
 		memmove ((void *)of_start, (void *)of_data, of_len);
 	}
-
-	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
-	/* ft_dump_blob(of_flat_tree); */
-
-#if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
-	unlock_ram_in_cache();
 #endif
+
 	/*
-	 * Linux Kernel Parameters:
+	 * Linux Kernel Parameters (passing board info data):
+	 *   r3: ptr to board info data
+	 *   r4: initrd_start or 0 if no initrd
+	 *   r5: initrd_end - unused if r4 is 0
+	 *   r6: Start of command line string
+	 *   r7: End   of command line string
+	 */
+#ifdef CONFIG_OF_FLAT_TREE
+	if (!of_flat_tree)	/* no device tree; boot old style */
+#endif
+		(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
+		/* does not return */
+
+#ifdef CONFIG_OF_FLAT_TREE
+	/*
+	 * Linux Kernel Parameters (passing device tree):
 	 *   r3: ptr to OF flat tree, followed by the board info data
 	 *   r4: physical pointer to the kernel itself
 	 *   r5: NULL
 	 *   r6: NULL
 	 *   r7: NULL
 	 */
-	if (getenv("disable_of") != NULL)
-		(*kernel) ((bd_t *)of_flat_tree, initrd_start, initrd_end,
-			cmd_start, cmd_end);
-	else {
-		ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
-		/* ft_dump_blob(of_flat_tree); */
-		(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
-	}
-#endif	/* CONFIG_OF_FLAT_TREE */
+	ft_setup(of_flat_tree, kbd, initrd_start, initrd_end);
+	/* ft_dump_blob(of_flat_tree); */
+
+	(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
+#endif
 }
 #endif /* CONFIG_PPC */
 

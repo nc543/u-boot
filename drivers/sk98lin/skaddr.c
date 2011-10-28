@@ -2,8 +2,8 @@
  *
  * Name:	skaddr.c
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
- * Version:	$Revision: 1.48 $
- * Date:	$Date: 2003/02/12 17:09:37 $
+ * Version:	$Revision: 1.1.1.1 $
+ * Date:	$Date: 2006/12/06 00:22:14 $
  * Purpose:	Manage Addresses (Multicast and Unicast) and Promiscuous Mode.
  *
  ******************************************************************************/
@@ -26,6 +26,9 @@
  * History:
  *
  *	$Log: skaddr.c,v $
+ *	Revision 1.1.1.1  2006/12/06 00:22:14  scsuh
+ *	new start of u-boot 1.1.6
+ *	
  *	Revision 1.48  2003/02/12 17:09:37  tschilli
  *	Fix in SkAddrOverride() to set both (physical and logical) MAC addresses
  *	in case that both addresses are identical.
@@ -224,7 +227,7 @@
 
 #ifndef	lint
 static const char SysKonnectFileId[] =
-	"@(#) $Id: skaddr.c,v 1.48 2003/02/12 17:09:37 tschilli Exp $ (C) SysKonnect.";
+	"@(#) $Id: skaddr.c,v 1.1.1.1 2006/12/06 00:22:14 scsuh Exp $ (C) SysKonnect.";
 #endif	/* !defined(lint) */
 
 #define __SKADDR_C

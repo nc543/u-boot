@@ -1,4 +1,4 @@
-/* $Id: xiic_l.c,v 1.2 2002/12/05 19:32:40 meinelte Exp $ */
+/* $Id: xiic_l.c,v 1.1.1.1 2006/12/06 00:22:11 scsuh Exp $ */
 /******************************************************************************
 *
 *	XILINX IS PROVIDING THIS DESIGN, CODE, OR INFORMATION "AS IS"

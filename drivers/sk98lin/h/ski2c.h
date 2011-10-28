@@ -2,8 +2,8 @@
  *
  * Name:	ski2c.h
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
- * Version:	$Revision: 1.34 $
- * Date:	$Date: 2003/01/28 09:11:21 $
+ * Version:	$Revision: 1.1.1.1 $
+ * Date:	$Date: 2006/12/06 00:22:14 $
  * Purpose:	Defines to access Voltage and Temperature Sensor
  *
  ******************************************************************************/
@@ -26,6 +26,9 @@
  * History:
  *
  *	$Log: ski2c.h,v $
+ *	Revision 1.1.1.1  2006/12/06 00:22:14  scsuh
+ *	new start of u-boot 1.1.6
+ *	
  *	Revision 1.34  2003/01/28 09:11:21  rschmidt
  *	Editorial changes
  *

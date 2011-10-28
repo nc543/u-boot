@@ -3,7 +3,7 @@
  * Copyright (C) 2004 by FS Forth-Systeme GmbH.
  * All rights reserved.
  *
- * $Id: led.c,v 1.1 2004/02/16 10:37:20 mpietrek Exp $
+ * $Id: led.c,v 1.1.1.1 2006/12/06 00:22:11 scsuh Exp $
  * @Author: Markus Pietrek
  * @Descr: Defines helper functions for toggeling LEDs
  * @Usage:

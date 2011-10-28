@@ -56,7 +56,7 @@ TODO: Homerun NIC and longrun NIC are not functional, only internal at the
 #define DM9801_NOISE_FLOOR	0x08
 #define DM9802_NOISE_FLOOR	0x05
 
-/* #define CONFIG_DM9000_DEBUG */
+//#define CONFIG_DM9000_DEBUG
 
 #ifdef CONFIG_DM9000_DEBUG
 #define DM9000_DBG(fmt,args...) printf(fmt ,##args)
@@ -124,7 +124,7 @@ dump_regs(void)
 	DM9000_DBG("TSRII (0x04): %02x\n", DM9000_ior(4));
 	DM9000_DBG("RCR   (0x05): %02x\n", DM9000_ior(5));
 	DM9000_DBG("RSR   (0x06): %02x\n", DM9000_ior(6));
-	DM9000_DBG("ISR   (0xFE): %02x\n", DM9000_ior(ISR));
+//	DM9000_DBG("ISR   (0xFE): %02x\n", DM9000_ior(ISR));
 	DM9000_DBG("\n");
 }
 #endif				/*  */
@@ -136,6 +136,7 @@ int
 dm9000_probe(void)
 {
 	u32 id_val;
+__loop:
 	id_val = DM9000_ior(DM9000_VIDL);
 	id_val |= DM9000_ior(DM9000_VIDH) << 8;
 	id_val |= DM9000_ior(DM9000_PIDL) << 16;
@@ -143,6 +144,7 @@ dm9000_probe(void)
 	if (id_val == DM9000_ID) {
 		printf("dm9000 i/o: 0x%x, id: 0x%x \n", CONFIG_DM9000_BASE,
 		       id_val);
+		goto __loop;
 		return 0;
 	} else {
 		printf("dm9000 not found at 0x%08x id: 0x%08x\n",
@@ -274,7 +276,7 @@ int
 eth_init(bd_t * bd)
 {
 	int i, oft, lnk;
-	DM9000_DBG("eth_init()\n");
+	printf("DM9000 eth_init()\n");
 
 	/* RESET device */
 	dm9000_reset();

@@ -3,7 +3,7 @@
  *
  * @brief  Header file for the IXP400 I2C Driver (IxI2cDrv)
  *
- * @version $Revision: 0.1 $
+ * @version $Revision: 1.1.1.1 $
  * 
  * @par
  * IXP400 SW Release version 2.0

@@ -2,8 +2,8 @@
  *
  * Name:	skvpd.c
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
- * Version:	$Revision: 1.37 $
- * Date:	$Date: 2003/01/13 10:42:45 $
+ * Version:	$Revision: 1.1.1.1 $
+ * Date:	$Date: 2006/12/06 00:22:14 $
  * Purpose:	Shared software to read and write VPD data
  *
  ******************************************************************************/
@@ -26,6 +26,9 @@
  * History:
  *
  *	$Log: skvpd.c,v $
+ *	Revision 1.1.1.1  2006/12/06 00:22:14  scsuh
+ *	new start of u-boot 1.1.6
+ *	
  *	Revision 1.37  2003/01/13 10:42:45  rschmidt
  *	Replaced check for PCI device Id from YUKON with GENESIS
  *	to set the VPD size in VpdInit()
@@ -168,7 +171,7 @@
 	Please refer skvpd.txt for infomation how to include this module
  */
 static const char SysKonnectFileId[] =
-	"@(#)$Id: skvpd.c,v 1.37 2003/01/13 10:42:45 rschmidt Exp $ (C) SK";
+	"@(#)$Id: skvpd.c,v 1.1.1.1 2006/12/06 00:22:14 scsuh Exp $ (C) SK";
 
 #include "h/skdrv1st.h"
 #include "h/sktypes.h"

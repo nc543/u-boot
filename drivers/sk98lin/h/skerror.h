@@ -2,8 +2,8 @@
  *
  * Name:	skerror.h
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
- * Version:	$Revision: 1.5 $
- * Date:	$Date: 2002/04/25 11:05:10 $
+ * Version:	$Revision: 1.1.1.1 $
+ * Date:	$Date: 2006/12/06 00:22:14 $
  * Purpose:	SK specific Error log support
  *
  ******************************************************************************/
@@ -25,6 +25,9 @@
  *
  * History:
  *	$Log: skerror.h,v $
+ *	Revision 1.1.1.1  2006/12/06 00:22:14  scsuh
+ *	new start of u-boot 1.1.6
+ *	
  *	Revision 1.5  2002/04/25 11:05:10  rschmidt
  *	Editorial changes
  *

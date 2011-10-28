@@ -22,7 +22,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  *
- * MODULE:        $Id:$
+ * MODULE:        $Id: s3c4510b_eth.h,v 1.1.1.1 2006/12/06 00:22:14 scsuh Exp $
  * Description:   Ethernet interface
  * Runtime Env:   ARM7TDMI
  * Change History:

@@ -44,6 +44,11 @@
 #include <devices.h>
 #include <version.h>
 #include <net.h>
+#include <asm/io.h>
+
+#if defined(CONFIG_BOOT_MOVINAND)
+#include <movi.h>
+#endif
 
 #ifdef CONFIG_DRIVER_SMC91111
 #include "../drivers/smc91111.h"
@@ -52,10 +57,17 @@
 #include "../drivers/lan91c96.h"
 #endif
 
+#include <nand.h>
+#include <regs.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
 void nand_init (void);
+#endif
+
+#ifdef CONFIG_ONENAND
+void onenand_init(void);
 #endif
 
 ulong monitor_flash_len;
@@ -80,6 +92,9 @@ extern void cs8900_get_enetaddr (uchar * addr);
 extern void rtl8019_get_enetaddr (uchar * addr);
 #endif
 
+#ifdef CONFIG_DRIVER_DM9000A
+extern void DM9000_get_enetaddr (uchar * addr);
+#endif
 /*
  * Begin and End of memory area for malloc(), and current "brk"
  */
@@ -94,8 +109,8 @@ void mem_malloc_init (ulong dest_addr)
 	mem_malloc_end = dest_addr + CFG_MALLOC_LEN;
 	mem_malloc_brk = mem_malloc_start;
 
-	memset ((void *) mem_malloc_start, 0,
-			mem_malloc_end - mem_malloc_start);
+	/* memset ((void *) mem_malloc_start, 0,
+			mem_malloc_end - mem_malloc_start); */
 }
 
 void *sbrk (ptrdiff_t increment)
@@ -135,6 +150,11 @@ static int display_banner (void)
 	printf ("\n\n%s\n\n", version_string);
 	debug ("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
 	       _armboot_start, _bss_start, _bss_end);
+#ifdef CONFIG_MEMORY_UPPER_CODE /* by scsuh */
+	debug("\t\bMalloc and Stack is above the U-Boot Code.\n");
+#else
+	debug("\t\bMalloc and Stack is below the U-Boot Code.\n");
+#endif
 #ifdef CONFIG_MODEM_SUPPORT
 	debug ("Modem Support enabled\n");
 #endif
@@ -170,7 +190,8 @@ static int display_dram_config (void)
 	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
 		size += gd->bd->bi_dram[i].size;
 	}
-	puts("DRAM:  ");
+
+	puts("DRAM:    ");
 	print_size(size, "\n");
 #endif
 
@@ -180,7 +201,7 @@ static int display_dram_config (void)
 #ifndef CFG_NO_FLASH
 static void display_flash_config (ulong size)
 {
-	puts ("Flash: ");
+	puts ("Flash:  ");
 	print_size (size, "\n");
 }
 #endif /* CFG_NO_FLASH */
@@ -233,19 +254,420 @@ init_fnc_t *init_sequence[] = {
 	NULL,
 };
 
+#if EZEX_NAND_BBT
+int use_bbt = BBT_NOT_FOUND;
+int bbt_count = 0;
+int bbt_0 = BBT_NOT_FOUND;
+int bbt_1 = BBT_NOT_FOUND;
+unsigned long bbt_addr;
+unsigned long bbt_table[MAX_BBT_TBL+1];
+unsigned long bbt_page[MAX_BBT_TBL+1];
+unsigned long map_table[MAX_BBT_TBL+1];
+unsigned long map_page[MAX_BBT_TBL+1];
+
+int write_bbt_flash(unsigned long addr)
+{
+	unsigned long *buf_addr = BBT_NAND_ADDR;
+	nand_info_t *nand;
+	nand_write_options_t wopts;
+	nand_erase_options_t eopts;
+	int i;
+
+	for(i = 0; i < (NAND_BLOCK/4); i++)
+		buf_addr[i] = 0;
+
+	nand = nand_info;
+	buf_addr[0] = BBT_MARK;
+	buf_addr[1] = BBT_MARK_1;
+	buf_addr[2] = bbt_count;
+	for(i = 0; i < bbt_count; i++)
+	{
+		buf_addr[4 + 4*i] = bbt_table[i];
+		buf_addr[5 + 4*i] = map_table[i];
+	}
+
+	memset(&wopts, 0, sizeof(wopts));
+	memset(&eopts, 0, sizeof(eopts));
+
+	eopts.length	= NAND_BLOCK;
+	eopts.offset	= addr;
+	eopts.jffs2		= 0;
+	eopts.quiet		= 1;
+	if(nand_erase_opts(nand, &eopts) == 0)
+	{
+		wopts.buffer	= (u_char*) BBT_NAND_ADDR;
+		wopts.length	= NAND_BLOCK;
+		wopts.offset	= addr;
+		wopts.quiet	    = 1;
+		wopts.pad       = 1;
+		wopts.blockalign= 1;
+		if(nand_write_opts(nand, &wopts) == 0)
+			return 0;
+	}
+	return 1;
+}
+
+int read_nand(unsigned long offset)
+{
+	int ret, i, j, count;
+	ulong off, size;
+	nand_info_t *nand;
+	unsigned long *buf_addr = BBT_NAND_ADDR;
+
+	nand = nand_info;
+
+	//printf("BBT checking at 0x%X => ", offset);
+	size = 0x20000;
+
+	if((ret = nand_read(nand, offset, &size, (u_char *)BBT_NAND_ADDR)) == 0)
+	{
+		if(buf_addr[0] == BBT_MARK)
+		{
+			for(i = 0; i < MAX_BBT_TBL; i++)
+				bbt_table[i] = bbt_page[i] = map_table[i] = map_page[i] = 0;
+
+			if(buf_addr[1] != BBT_MARK_1)
+			{
+				//printf(" - gang pgmed ");
+
+				count = 0;
+				for(i = 0; i < MAX_BBT_TBL; i++)
+				{
+					if((buf_addr[4 + 4*i] != 0) && (buf_addr[4 + 4*i] < BBT_0_ADDR))
+					{
+						bbt_table[i] = buf_addr[4 + 4*i];
+						bbt_page[i] = (buf_addr[4 + 4*i] >> 11);
+						map_table[i] = buf_addr[5 + 4*i];
+						map_page[i] = (buf_addr[5 + 4*i] >> 11);
+						count++;
+					}	
+				}
+				//printf("%d table(s) - ", count);
+				j = 0;
+				for (off = BBT_START_ADDR; off < NAND_SIZE ; off += NAND_BLOCK)
+				{
+					if((nand_block_isbad(nand, off)) == 0)
+					{
+						for(i = 0; i < count; i++)
+						{
+							if(off == map_table[i])
+								goto nxt;
+						}
+						map_table[count + j] = off;
+						map_page[count + j] = (off >> 11);
+						j++;
+					}
+nxt:
+					i = i;
+				}
+				bbt_count = j + count;
+				//printf("%d slot(s) - ", bbt_count);
+
+				j = 0;
+				bbt_count = count;
+				for (off = 0; off < BBT_0_ADDR ; off += NAND_BLOCK)
+				{
+					if(nand_block_isbad(nand, off))
+					{
+						for(i = 0; i < count; i++)
+						{
+							if(off == bbt_table[i])
+								goto nxt_1;
+						}
+						bbt_table[count + j] = off;
+						bbt_page[count + j] = (off >> 11);
+						j++;
+						bbt_count++;
+					}
+nxt_1:
+					i = i;
+					if(bbt_count > MAX_BBT_TBL)
+						break;
+				}
+				//printf("%d new entry, -- %d bbt count\n", j, bbt_count);
+				if(offset == BBT_0_ADDR)
+					i = write_bbt_flash(BBT_0_ADDR);
+				else
+					i = write_bbt_flash(BBT_1_ADDR);
+
+				if(i == 0)
+					return BBT_FOUND;
+				else
+					return BBT_NOT_FOUND;
+			}
+			else
+			{
+				bbt_count = buf_addr[2];
+				for(i = 0; i < bbt_count; i++)
+				{
+					bbt_table[i] = buf_addr[4 + 4*i];
+					map_table[i] = buf_addr[5 + 4*i];
+
+					bbt_page[i] = (buf_addr[4 + 4*i] >> 11);
+					map_page[i] = (buf_addr[5 + 4*i] >> 11);
+				}
+			}
+			//printf("found %d tables\n", bbt_count);
+			return BBT_FOUND;
+		}
+		else
+		{
+//			printf("not found\n");
+			return BBT_NOT_FOUND;
+		}
+	}
+	else
+	{
+//		printf("error reading BBT\n");
+		return BBT_ERROR;
+	}
+}
+
+int read_bbt(void)
+{
+	int	ret;
+
+	bbt_addr = BBT_0_ADDR;
+	ret = read_nand(bbt_addr);
+	if(ret == BBT_FOUND)
+	{
+		bbt_0 = BBT_FOUND;
+		printf("** BBT0 found\n");
+		return BBT_FOUND;
+	}
+	else if(ret == BBT_ERROR)
+	{
+		bbt_0 = BBT_ERROR;
+	}
+	
+	bbt_addr = BBT_1_ADDR;
+	ret = read_nand(bbt_addr);
+	if(ret == BBT_FOUND)
+	{
+		bbt_1 = BBT_FOUND;
+		printf("** BBT1 found\n");
+		return BBT_FOUND;
+	}
+	else if(ret == BBT_ERROR)
+	{
+		bbt_1 = BBT_ERROR;
+	}
+
+	if((bbt_0 == BBT_ERROR) && (bbt_1 == BBT_ERROR))
+		return BBT_ERROR;
+	else
+		return BBT_NOT_FOUND;
+}
+
+int create_bbt(void)
+{
+	int i;
+	unsigned long off;
+	nand_info_t *nand;
+
+	printf("==[Create BBT]==\n");
+	nand = nand_info;
+	
+	for(i = 0; i < MAX_BBT_TBL; i++)
+		bbt_table[i] = bbt_page[i] = map_table[i] = map_page[i] = 0;
+
+	i = 0;
+	for(off = BBT_START_ADDR; off < NAND_SIZE ; off += NAND_BLOCK)
+	{
+		if((nand_block_isbad(nand, off)) == 0)
+		{
+			map_table[i] = off;
+			map_page[i++] = (off >> 11);
+		}
+	}
+	bbt_count = i;
+//	printf("%d BBT slot(s) found\n", i);
+
+	i = 0;
+	for(off = 0; off < BBT_0_ADDR ; off += NAND_BLOCK)
+	{
+		if (nand_block_isbad(nand, off))
+		{
+			bbt_table[i] = off;
+			bbt_page[i++] = (off >> 11);
+		}
+
+		if(i >= bbt_count)	// if error block is more than bbt slot
+			break;
+	}
+	bbt_count = i;
+
+	if(bbt_0 == BBT_NOT_FOUND)
+		i = write_bbt_flash(BBT_0_ADDR);
+
+	if(i == 0)
+		return 0;
+
+	if(bbt_1 == BBT_NOT_FOUND)
+		return write_bbt_flash(BBT_1_ADDR);
+
+	return 1;
+}
+
+void check_bbt(void)
+{
+	int ret;
+
+	printf("\n==[Check BBT]==\n");
+	if((ret = read_bbt()) == BBT_FOUND)
+	{
+		use_bbt = 1;
+		return;
+	}
+	else if(ret == BBT_NOT_FOUND)
+	{
+		if(create_bbt() == 0)
+		{
+			use_bbt = 1;
+		}
+	}
+}
+#endif
+
+void check_update(void)
+{
+	nand_info_t *nand;
+	nand_read_options_t ropts;
+	nand_write_options_t wopts;
+	nand_erase_options_t eopts;
+	ulong gpdat;
+	u_int data;
+	u_int *addr, *addr1;
+
+	nand = nand_info;
+	memset(&ropts, 0, sizeof(ropts));
+	memset(&wopts, 0, sizeof(wopts));
+	memset(&eopts, 0, sizeof(eopts));
+
+	ropts.buffer	= (u_char*) 0xc0000000;
+	ropts.length	= 0x800;
+	ropts.offset	= 0x43f800;
+	ropts.quiet		= 1;
+
+	if(nand_read_opts(nand, &ropts) == 0)
+	{
+		addr = 0xc0000000;
+		addr1 = 0xc00007fc;
+		if((*addr1 == 0xa55affff) && (*addr == 0x58455a45))
+		{
+			printf("===================\n");
+			printf("Kernel image  found\n");
+
+#if 0
+			gpdat = readl(GPADAT);
+			gpdat |= ((1<<1) | (1<<5) | (1<<7));
+			writel(gpdat, GPADAT);
+
+			gpdat = readl(GPKDAT);
+			gpdat |= ((1<<13) | (1<<7));
+			writel(gpdat, GPKDAT);
+#endif
+
+			ropts.buffer	= (u_char*) 0xc0000000;
+			ropts.length	= 0x200000;
+			ropts.offset	= 0x240000;
+			ropts.quiet  = 1;
+			if(nand_read_opts(nand, &ropts) == 0)
+			{
+				printf("Kernel image  read.\n");
+
+				eopts.length	= 0x200000;
+				eopts.offset	= 0x040000;
+				eopts.jffs2		= 0;
+				eopts.quiet		= 1;
+				if(nand_erase_opts(nand, &eopts) == 0)
+				{
+					printf("Kernel erase  done.\n");
+
+					wopts.buffer	= (u_char*) 0xc0000000;
+					wopts.length	= 0x200000;
+					wopts.offset	= 0x040000;
+					wopts.quiet	    = 1;
+					wopts.pad       = 1;
+					wopts.blockalign= 1;
+					if(nand_write_opts(nand, &wopts) == 0)
+					{
+						printf("Kernel update done.\n");
+						printf("===================\n");
+
+						eopts.length	= 0x2000;
+						eopts.offset	= 0x420000;
+						eopts.jffs2		= 0;
+						eopts.quiet		= 1;
+						nand_erase_opts(nand, &eopts);
+
+						do_reset();
+						while(1)
+							;
+					}
+					else
+					{
+						printf("Error in writing Kernel image ...\n");
+						goto _exit;
+					}
+
+				}
+				else
+				{
+					printf("Error erasing Kernel image ...\n");
+					goto _exit;
+				}
+			}
+			else
+			{
+				printf("Error reading Kernel image ...\n");
+			}
+		}
+	}
+
+_exit:
+	gpdat = readl(GPADAT);
+#if 0
+	gpdat &= ~((1<<5) | (1<<7));
+	writel(gpdat, GPADAT);
+
+	gpdat = readl(GPKDAT);
+	gpdat &= ~((1<<13) | (1<<7));
+	writel(gpdat, GPKDAT);
+#endif
+}
+
 void start_armboot (void)
 {
+	int i;
+	ulong gpdat, gpcon;
 	init_fnc_t **init_fnc_ptr;
 	char *s;
 #ifndef CFG_NO_FLASH
 	ulong size;
 #endif
+
 #if defined(CONFIG_VFD) || defined(CONFIG_LCD)
 	unsigned long addr;
 #endif
 
+#if defined(CONFIG_BOOT_MOVINAND)
+	uint *magic = (uint *) (PHYS_SDRAM_1);
+#endif
+
 	/* Pointer is writable since we allocated a register for it */
+#ifdef CONFIG_MEMORY_UPPER_CODE /* by scsuh */
+	ulong gd_base;
+
+	gd_base = CFG_UBOOT_BASE + CFG_UBOOT_SIZE - CFG_MALLOC_LEN - CFG_STACK_SIZE - sizeof(gd_t);
+#ifdef CONFIG_USE_IRQ
+	gd_base -= (CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ);
+#endif
+	gd = (gd_t*)gd_base;
+#else
 	gd = (gd_t*)(_armboot_start - CFG_MALLOC_LEN - sizeof(gd_t));
+#endif
+
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
@@ -294,11 +716,43 @@ void start_armboot (void)
 #endif /* CONFIG_LCD */
 
 	/* armboot_start is defined in the board-specific linker script */
+#ifdef CONFIG_MEMORY_UPPER_CODE /* by scsuh */
+	mem_malloc_init (CFG_UBOOT_BASE + CFG_UBOOT_SIZE - CFG_MALLOC_LEN - CFG_STACK_SIZE);
+#else
 	mem_malloc_init (_armboot_start - CFG_MALLOC_LEN);
+#endif
+
+#if defined(CONFIG_SMDK6400) || defined(CONFIG_SMDK6410) || defined(CONFIG_SMDK6430) || defined(CONFIG_SMDK2450) || defined(CONFIG_SMDK2416)
+
+#if defined(CONFIG_NAND)
+	puts ("NAND:    ");
+	nand_init();		/* go init the NAND */
+#endif
+
+#if defined(CONFIG_ONENAND)
+	puts ("OneNAND: ");
+	onenand_init();		/* go init the One-NAND */
+#endif
+
+#if defined(CONFIG_BOOT_MOVINAND)
+	puts ("MMC:     ");
+
+	if ((0x24564236 == magic[0]) && (0x20764316 == magic[1])) {
+		printf("Boot up for burning\n");
+	} else {
+		movi_set_capacity();
+		movi_set_ofs(MOVI_TOTAL_BLKCNT);
+		movi_init();
+	}
+#endif
+
+#else
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-	puts ("NAND:  ");
+	puts ("NAND:    ");
 	nand_init();		/* go init the NAND */
+#endif
+
 #endif
 
 #ifdef CONFIG_HAS_DATAFLASH
@@ -368,6 +822,10 @@ void start_armboot (void)
 	cs8900_get_enetaddr (gd->bd->bi_enetaddr);
 #endif
 
+#ifdef CONFIG_DRIVER_DM9000A
+	DM9000_get_enetaddr (gd->bd->bi_enetaddr);
+#endif
+
 #if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)
 	if (getenv ("ethaddr")) {
 		smc_set_mac_addr(gd->bd->bi_enetaddr);
@@ -389,10 +847,25 @@ void start_armboot (void)
 #endif
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
-	puts ("Net:   ");
+	puts ("Net:     ");
 #endif
 	eth_initialize(gd->bd);
 #endif
+
+#if EZEX_NAND_BBT
+	check_bbt();
+	if(use_bbt == 0)
+		printf("Cannot use BBT in this system !!\n");
+	else
+		for(i = 0; i < bbt_count; i++)
+			printf("%d: Bad offset [%08x] --> [%08X]\n", i, bbt_table[i], map_table[i]);
+
+	if(bbt_count == 0)
+		use_bbt = 0;
+#endif
+
+	check_update();
+
 	/* main_loop() can return to retry autoboot, if so just run it again. */
 	for (;;) {
 		main_loop ();

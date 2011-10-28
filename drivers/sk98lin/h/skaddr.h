@@ -2,8 +2,8 @@
  *
  * Name:	skaddr.h
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
- * Version:	$Revision: 1.26 $
- * Date:	$Date: 2002/11/15 07:24:42 $
+ * Version:	$Revision: 1.1.1.1 $
+ * Date:	$Date: 2006/12/06 00:22:14 $
  * Purpose:	Header file for Address Management (MC, UC, Prom).
  *
  ******************************************************************************/
@@ -26,6 +26,9 @@
  * History:
  *
  *	$Log: skaddr.h,v $
+ *	Revision 1.1.1.1  2006/12/06 00:22:14  scsuh
+ *	new start of u-boot 1.1.6
+ *	
  *	Revision 1.26  2002/11/15 07:24:42  tschilli
  *	SK_ADDR_EQUAL macro fixed.
  *

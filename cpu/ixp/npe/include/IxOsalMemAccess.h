@@ -4,7 +4,7 @@
  * @brief Header file for memory access
  * 
  * @par
- * @version $Revision: 1.0 $
+ * @version $Revision: 1.1.1.1 $
  * 
  * @par
  * IXP400 SW Release version 2.0
